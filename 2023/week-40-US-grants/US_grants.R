@@ -9,11 +9,8 @@ library(ggplot2)
 ###############################################################################################################################################################################################
 
 tuesdata <- tidytuesdayR::tt_load(2023, week = 40)
-
 grants <- tuesdata$grants
 grant_opportunity_details <- tuesdata$grant_opportunity_details
-
-rm(tuesdata)
 
 ###############################################################################################################################################################################################
 # # grants: relevant atts
@@ -32,49 +29,73 @@ rm(tuesdata)
 
 ###############################################################################################################################################################################################
 
-categ_cols <- colnames(grant_opportunity_details)[colnames(grant_opportunity_details) %>% substr(1, 8) == "category"]
-cols <- c("opportunity_id", categ_cols %>% setdiff("category_explanation"))
-categs_by_grant <- grant_opportunity_details[, cols] %>% gather(category, bool, -1) %>% filter(bool) %>% select(-bool)
-# there are grants with more than one category
-table(categs_by_grant$category, useNA = "always") %>% sort(decreasing = T)
+# categ_cols <- colnames(grant_opportunity_details)[colnames(grant_opportunity_details) %>% substr(1, 8) == "category"]
+# cols <- c("opportunity_id", categ_cols %>% setdiff("category_explanation"))
+# categs_by_grant <- grant_opportunity_details[, cols] %>% gather(category, bool, -1) %>% filter(bool) %>% select(-bool)
+# # there are grants with more than one category
+# table(categs_by_grant$category, useNA = "always") %>% sort(decreasing = T)
+# 
+# df <- merge(categs_by_grant,
+#             grant_opportunity_details %>% select(opportunity_id, estimated_total_program_funding, posted_date),
+#             by = "opportunity_id", all.x = T) %>%
+#   filter(!is.na(estimated_total_program_funding) & estimated_total_program_funding > 0) %>%
+#   mutate(posted_year = year(posted_date))
 
-#####################################
+###############################################################################################################################################################################################
 
-check_funds <- merge(grants %>% select(opportunity_id, estimated_funding),
-                     grant_opportunity_details %>% select(opportunity_id, estimated_total_program_funding),
-                     by = "opportunity_id", all = T)
+grant_opportunity_details %>%
+  filter(!is.na(estimated_total_program_funding) & estimated_total_program_funding > 0) %>%
+  mutate(posted_year = year(posted_date)) %>%
+  group_by(posted_year) %>%
+  summarise(sum_funding = sum(estimated_total_program_funding)) %>%
+  ggplot(aes(x = posted_year, y = sum_funding)) +
+  geom_col()
 
-check_funds <- check_funds %>% mutate(diff = estimated_total_program_funding - estimated_funding)
+grants %>%
+  filter(!is.na(estimated_funding) & estimated_funding > 0) %>%
+  mutate(posted_year = year(posted_date)) %>%
+  group_by(posted_year) %>%
+  summarise(sum_funding = sum(estimated_funding)) %>%
+  ggplot(aes(x = posted_year, y = sum_funding)) +
+  geom_col()
 
-table(is.na(check_funds$estimated_funding), is.na(check_funds$estimated_total_program_funding))
-
-#####################################
-
-# grants <- merge(grants, categs_by_grant, by = "opportunity_id", all = T)
-# sum(duplicated(grants$opportunity_id))
-# View(grants[duplicated(grants$opportunity_id) | duplicated(grants$opportunity_id, fromLast = T), ])
-
-categs_by_grant <- merge(categs_by_grant, grants %>% select(opportunity_id, estimated_funding), by = "opportunity_id", all = T)
-
-xx <- categs_by_grant %>% select(-1) %>% filter(!is.na(estimated_funding) & !is.na(category)) %>%
-  group_by(category) %>% summarise(estimated_funding = sum(estimated_funding)) %>%
-  arrange(desc(estimated_funding))
-ggplot(xx, aes(x = category, y = estimated_funding)) +
+grant_opportunity_details %>%
+  filter(str_detect(description, "artificial intelligence|machine learning|data science|neural networks")) %>%
+  filter(!is.na(estimated_total_program_funding) & estimated_total_program_funding > 0) %>%
+  mutate(posted_year = year(posted_date)) %>%
+  group_by(posted_year) %>%
+  summarise(sum_funding = sum(estimated_total_program_funding)) %>%
+  ggplot(aes(x = posted_year, y = sum_funding)) +
   geom_col()
 
 ###############################################################################################################################################################################################
 
-AI_grants <- grant_opportunity_details %>% filter(str_detect(description, "artificial intelligence"))
-plot(AI_grants$posted_date)
-plot(AI_grants$posted_date, AI_grants$estimated_total_program_funding)
+grants_AI <- grants %>% left_join(grant_opportunity_details %>% select(opportunity_id, description), by = "opportunity_id") %>%
+  filter(str_detect(description %>% tolower, "artificial intelligence|machine learning|data science")) %>%
+  filter(!is.na(estimated_funding) & estimated_funding > 0) %>%
+  mutate(posted_year = year(posted_date))
 
-summary(AI_grants$estimated_total_program_funding)
+grants_AI %>%
+  group_by(posted_year) %>%
+  summarise(sum_funding = sum(estimated_funding)) %>%
+  ggplot(aes(x = posted_year, y = sum_funding)) +
+  geom_col()
 
-AI_grants2 <- AI_grants %>% mutate(posted_year = year(posted_date)) %>% group_by(posted_year) %>% summarise(estimated_total_program_funding = sum(estimated_total_program_funding, na.rm = T))
-plot(AI_grants2)
+################################
+
+grants_climate <- grants %>% left_join(grant_opportunity_details %>% select(opportunity_id, description), by = "opportunity_id") %>%
+  filter(str_detect(description %>% tolower, "climate") | str_detect(opportunity_title %>% tolower, "climate")) %>%
+  filter(!is.na(estimated_funding) & estimated_funding > 0) %>%
+  mutate(posted_year = year(posted_date))
+
+grants_climate %>%
+  group_by(posted_year) %>%
+  summarise(sum_funding = sum(estimated_funding)) %>%
+  ggplot(aes(x = posted_year, y = sum_funding)) +
+  geom_col()
+
+###############################################################################################################################################################################################
 
 
-AI_grants3 <- AI_grants %>% mutate(posted_year = year(posted_date)) %>% group_by(posted_year) %>% summarise(n_estimated_total_program_funding = n())
-plot(AI_grants3)
 
 
