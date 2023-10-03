@@ -7,7 +7,6 @@ library(lubridate)
 
 ###############################################################################################################################################################################################
 
-# tuesdata <- tidytuesdayR::tt_load('2023-10-03')
 tuesdata <- tidytuesdayR::tt_load(2023, week = 40)
 
 grants <- tuesdata$grants
@@ -34,13 +33,29 @@ rm(tuesdata)
 
 categ_cols <- colnames(grant_opportunity_details)[colnames(grant_opportunity_details) %>% substr(1, 8) == "category"]
 cols <- c("opportunity_id", categ_cols %>% setdiff("category_explanation"))
-grants2 <- grant_opportunity_details[, cols] %>% gather(category, bool, -1) %>% filter(bool) %>% select(-bool)
-# there are grant with more than one category
+categs_by_grant <- grant_opportunity_details[, cols] %>% gather(category, bool, -1) %>% filter(bool) %>% select(-bool)
+# there are grants with more than one category
+table(categs_by_grant$category, useNA = "always") %>% sort(decreasing = T)
 
-table(grants2$category, useNA = "always") %>% sort(decreasing = T)
+#####################################
 
-summary(grant_opportunity_details$estimated_total_program_funding)
-plot(grant_opportunity_details$estimated_total_program_funding)
+check_funds <- merge(grants %>% select(opportunity_id, estimated_funding),
+                     grant_opportunity_details %>% select(opportunity_id, estimated_total_program_funding),
+                     by = "opportunity_id", all = T)
+
+check_funds <- check_funds %>% mutate(diff = estimated_total_program_funding - estimated_funding)
+
+table(is.na(check_funds$estimated_funding), is.na(check_funds$estimated_total_program_funding))
+
+#####################################
+
+# grants <- merge(grants, categs_by_grant, by = "opportunity_id", all = T)
+# sum(duplicated(grants$opportunity_id))
+# View(grants[duplicated(grants$opportunity_id) | duplicated(grants$opportunity_id, fromLast = T), ])
+
+categs_by_grant <- merge(categs_by_grant, grants %>% select(opportunity_id, estimated_funding), by = "opportunity_id", all = T)
+
+plot(categs_by_grant %>% select(-1) %>% filter(!is.na(estimated_funding) & !is.na(category)))
 
 ###############################################################################################################################################################################################
 
