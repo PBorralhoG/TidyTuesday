@@ -4,6 +4,7 @@ library(stringr)
 library(dplyr)
 library(tidyr)
 library(lubridate)
+library(ggplot2)
 
 ###############################################################################################################################################################################################
 
@@ -55,7 +56,11 @@ table(is.na(check_funds$estimated_funding), is.na(check_funds$estimated_total_pr
 
 categs_by_grant <- merge(categs_by_grant, grants %>% select(opportunity_id, estimated_funding), by = "opportunity_id", all = T)
 
-plot(categs_by_grant %>% select(-1) %>% filter(!is.na(estimated_funding) & !is.na(category)))
+xx <- categs_by_grant %>% select(-1) %>% filter(!is.na(estimated_funding) & !is.na(category)) %>%
+  group_by(category) %>% summarise(estimated_funding = sum(estimated_funding)) %>%
+  arrange(desc(estimated_funding))
+ggplot(xx, aes(x = category, y = estimated_funding)) +
+  geom_col()
 
 ###############################################################################################################################################################################################
 
