@@ -25,23 +25,43 @@ plot(haunted_schools$geometry)
 
 ###############################################
 
+us_states <- map_data("state") %>%
+  mutate(region = tolower(region))
+
+us_counties <- map_data("county")
+
+###############################################
+
 haunted_schools_count <- haunted_schools %>% as.data.frame %>% group_by(state) %>% summarise(n = n()) %>%
   mutate(state = tolower(state),
          state = ifelse(state == "washington dc", "district of columbia", state))
 
-us_states_map <- map_data("state") %>%
-  mutate(region = tolower(region)) %>%
-  left_join(haunted_schools_count, by = join_by(region == state))
+us_states <- us_states %>%
+  left_join(haunted_schools_count, by = c("region"="state"))
 
-# setdiff(haunted_schools_count$state, us_states_map$region)
-# setdiff(us_states_map$region, haunted_schools_count$state)
+# setdiff(haunted_schools_count$state, us_states$region)
+# setdiff(us_states$region, haunted_schools_count$state)
 
 ###############################################
 
-ggplot(data = us_states_map, aes(x = long, y = lat, fill = n, group = group)) + 
+ggplot(data = us_states, aes(x = long, y = lat, group = group, fill = n)) + 
   geom_polygon(color = "white") +
   scale_fill_gradient(low = "orange", high = "purple") +
   # scale_fill_gradient2(midpoint = max(haunted_schools_count$n)/2, low = "orange", mid = "purple", high = "black") +
   # guides(fill = "none") +
+  theme_void() +
+  coord_map(clip = "off")
+
+# ggplot(data = us_counties, aes(x = long, y = lat, fill = subregion)) + 
+#   geom_polygon(color = "white") +
+#   # guides(fill = "none") +
+#   # theme_void() +
+#   coord_map(clip = "off")
+
+ggplot() +
+  geom_polygon(data = us_states, aes(x = long, y = lat, group = group, fill = n), color = "white") +
+  scale_fill_gradient(low = "orange", high = "purple") +
+  geom_point(data = haunted_schools, aes(x = longitude, y = latitude)) +
+  guides(fill = "none") +
   theme_void() +
   coord_map(clip = "off")
