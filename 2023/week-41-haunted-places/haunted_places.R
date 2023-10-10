@@ -84,20 +84,28 @@ ggplot() +
 
 ###############################################################################################################################################################################################
 
-grid_step <- 20 # ***
-grid <- st_make_grid(us_states %>% st_as_sf(coords = c("long", "lat"), crs = 4326), n = c(grid_step, grid_step)) # ***
-# pipes$grid_cell <- sapply(st_intersects(pipes, grid), "[[", 1)
+us_states_sf <- us_states %>% st_as_sf(coords = c("long", "lat"), crs = 4326) %>% st_transform(3857)
+
+grid <- st_make_grid(us_states_sf, cellsize = 100*10^3, square = F, flat_topped = T)
+
+grid_sf <- st_sf(grid)
+grid_sf$n <- lengths(st_intersects(grid_sf, haunted_schools %>% st_transform(3857)))
+grid_sf_g0 <- filter(grid_sf, n > 0)
+grid_sf_geq10 <- filter(grid_sf, n >= 10)
+
+ggplot(grid) + geom_sf()
+ggplot(grid_sf_g0) + geom_sf()
 
 ggplot() +
-  geom_sf(data = grid) +
-  geom_polygon(data = us_states, aes(x = long, y = lat, group = group), fill = "grey", color = "white") +
-  scale_fill_gradient(low = "orange", high = "purple") +
-  geom_point(data = haunted_schools, aes(x = longitude, y = latitude, color = cluster)) +
-  guides(fill = "none") +
+  # geom_polygon(data = us_states, aes(x = long, y = lat, group = group), fill = "grey", color = "white") +
+  geom_sf(data = us_states_sf, fill = "grey") +
+  geom_sf(data = grid_sf_geq10, fill = "orange") +
+  # scale_fill_gradient(low = "orange", high = "purple") +
+  # geom_point(data = haunted_schools, aes(x = longitude, y = latitude, color = cluster)) +
+  guides(fill = "none", color = "none") +
   theme_void() #+
   # coord_map(clip = "off")
 
-ggplot(grid) +
-  geom_sf()
+
 
 
