@@ -4,6 +4,7 @@ library(dplyr)
 library(stringr)
 library(sf)
 library(ggplot2)
+
 library(mapdata)
 
 ###############################################################################################################################################################################################
@@ -13,13 +14,15 @@ haunted_places <- tuesdata$haunted_places
 
 ###############################################################################################################################################################################################
 
-haunted_schools <- haunted_places %>%
-  filter(str_detect(location %>% tolower, "school|college|university|education|elementary")) %>%
+haunted_places <- haunted_places %>%
   mutate(longitude = ifelse(is.na(longitude), city_longitude, longitude),
          latitude = ifelse(is.na(latitude), city_latitude, latitude)) %>%
   filter(!is.na(longitude) & !is.na(latitude)) %>%
   filter(!state %in% c("Alaska", "Hawaii")) %>%
   st_as_sf(coords = c("longitude", "latitude"), crs = 4326, remove = F)
+
+haunted_schools <- haunted_places %>%
+  filter(str_detect(location %>% tolower, "school|college|university|education|elementary"))
 
 plot(st_geometry(haunted_schools))
 
@@ -51,27 +54,20 @@ ggplot() +
 
 ###############################################################################################################################################################################################
 
-us_states_sf <- us_states %>% st_as_sf(coords = c("long", "lat"), crs = 4326)
+n_bins <- 5
+color_palette <- colorRampPalette(c("orange", "purple"))(n_bins)
 
-grid <- st_make_grid(us_states_sf, cellsize = 1, square = F, flat_topped = T)
-
-grid_sf <- st_sf(grid)
-grid_sf$n <- lengths(st_intersects(grid_sf, haunted_schools))
-grid_sf_g0 <- filter(grid_sf, n > 0)
-grid_sf_geq10 <- filter(grid_sf, n >= 10)
-
-ggplot(grid) + geom_sf()
-ggplot(grid_sf_g0) + geom_sf()
-
-ggplot() +
-  # geom_sf(data = grid, fill = "orange") +
-  geom_polygon(data = us_states, aes(x = long, y = lat, group = group), fill = "grey", color = "white") +
-  geom_sf(data = grid_sf_geq10, fill = "orange") +
-  geom_point(data = haunted_schools, aes(x = longitude, y = latitude)) +
+ggplot(haunted_schools, aes(x = longitude, y = latitude)) +
+  geom_polygon(data = us_states, aes(x = long, y = lat, group = group), fill = grey(0.3), color = "white") +
+  stat_density_2d(geom = "polygon", aes(fill = as.factor(..level..)), bins = n_bins, alpha = 0.8) +
+  geom_polygon(data = us_states, aes(x = long, y = lat, group = group), fill = NA, color = alpha("white", 0.2)) +
+  # geom_point() +
+  scale_fill_manual(values = color_palette, aesthetics = c("fill", "color")) +
   guides(fill = "none", color = "none") +
-  theme_void() #+
-  # coord_map(clip = "off")
+  theme_void() +
+  theme(plot.background = element_rect(fill = grey(0.8))) #3E2469
 
+  
 
 
 
