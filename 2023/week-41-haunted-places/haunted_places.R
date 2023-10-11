@@ -9,8 +9,7 @@ library(showtext)
 
 # add font
 font_add_google("Special Elite", family = "Special Elite"); font <- "Special Elite"
-showtext_auto()
-showtext_opts(dpi = 320)
+showtext_auto(); showtext_opts(dpi = 320)
 
 ################################################################################################
 # load data
@@ -44,13 +43,12 @@ ggplot(haunted_schools, aes(x = longitude, y = latitude)) +
   scale_fill_manual(values = color_palette, aesthetics = c("fill", "color")) +
   coord_map(clip = "off") +
   labs(title = "Haunted Schools in the United States",
-       # subtitle = "If you go to school in these areas, you might want to skip classes for the spooky season",
-       subtitle = "If you live in these areas, you might want to skip classes for the spooky season",
+       subtitle = "If you go to school in these areas, you may want to skip classes for the spooky season",
        caption = paste0("#TidyTuesday week 41 2023 | Data: Tim Renner on data.world | Plot: Pedro Borralho")) +
   theme_void() +
   theme(plot.title = element_text(family = font, size = 20, hjust = 0.5, face = "bold"),
-        plot.subtitle = element_text(family = font, size = 8.5, hjust = 0.5, color = "purple", margin = margin(t = 10, b = 40)), # size = 10
-        plot.caption = element_text(family = font, size = 8, hjust = 0.5, margin = margin(t = 40)), # size = 8
+        plot.subtitle = element_text(family = font, size = 8.5, hjust = 0.5, color = "purple", margin = margin(t = 10, b = 40)),
+        plot.caption = element_text(family = font, size = 8, hjust = 0.5, margin = margin(t = 40)),
         legend.position = "none",
         plot.margin = unit(c(1, 0.5, 1, 0.5), "cm"),
         plot.background = element_rect(fill = grey(0.85), color = NA))
