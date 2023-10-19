@@ -2,6 +2,7 @@
 library(taylor)
 library(dplyr)
 library(stringr)
+library(ggplot2)
 
 ################################################################################################
 # load data
@@ -54,13 +55,18 @@ sum(taylor_album_songs$found_n > 0) / nrow(taylor_album_songs) # 56%
 
 perc_by_album <- taylor_album_songs %>%
   group_by(album_name) %>%
-  summarise(perc = sum(found_n > 0) / n(),
+  summarise(found_n_g0 = sum(found_n > 0),
+            n_songs = n(),
+            perc = found_n_g0 / n_songs,
             album_release = unique(album_release)) %>%
   arrange(desc(perc))
 
 plot(perc_by_album$album_release, perc_by_album$perc)
 
+################################################################################################
 
+ggplot(perc_by_album %>% arrange(album_release), aes(x = n_songs, y = album_name)) +
+  geom_tile(aes(fill = found_n_g0), color = "white", lwd = 1, linetype = 1)
 
 
 
