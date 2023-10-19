@@ -15,19 +15,38 @@ library(stringr)
 taylor_album_songs$lyrics <- lapply(1:nrow(taylor_album_songs), function(i) taylor_album_songs$lyrics[[i]]$lyric)
 
 taylor_album_songs <- taylor_album_songs %>% mutate(track_name_clean = track_name %>% tolower %>%
-                                                      str_replace(" \\(taylor's version\\)", "") %>%
-                                                      str_replace(" \\[taylor's version\\]", "") %>%
-                                                      str_replace(" \\(10 minute version\\)", "") %>%
-                                                      str_replace(" \\[from the vault\\]", "") %>%
+                                                      str_replace(" \\(taylor's version\\)", "") %>% str_replace(" \\[taylor's version\\]", "") %>%
+                                                      str_replace(" \\(from the vault\\)", "") %>% str_replace(" \\[from the vault\\]", "") %>%
                                                       str_replace(" \\(piano version\\)", "") %>%
-                                                      str_replace(" \\(remix\\)", "") %>%
                                                       str_replace(" \\(pop version\\)", "") %>%
                                                       str_replace(" \\(acoustic version\\)", "") %>%
+                                                      str_replace(" \\(10 minute version\\)", "") %>%
+                                                      str_replace(" \\(remix\\)", "") %>%
                                                       str_replace(" \\(strings remix\\)", "") %>%
-                                                      str_replace(" \\(piano remix\\)", ""))
+                                                      str_replace(" \\(piano remix\\)", "") %>%
+                                                      str_replace(" \\(more lana del rey\\)", "") %>%
+                                                      str_replace("&", "and"),
+                                                    track_name_clean_v2 = track_name_clean %>% str_replace_all("[[:punct:]]", " ") %>% str_squish)
 
-taylor_album_songs$found_n <- sapply(1:nrow(taylor_album_songs),
-                                     function(i) str_count(taylor_album_songs$lyrics[i] %>% unlist %>% tolower, taylor_album_songs$track_name[i] %>% tolower) %>% sum)
+taylor_album_songs$lyrics_clean <- sapply(1:nrow(taylor_album_songs), function(i) taylor_album_songs$lyrics[i] %>% unlist %>% tolower %>% paste0(collapse = " ") %>% str_squish)
+taylor_album_songs <- taylor_album_songs %>% mutate(lyrics_clean_v2 = lyrics_clean %>% str_replace_all("[[:punct:]]", " ") %>% str_squish)
+
+taylor_album_songs$found_n_v1 <- sapply(1:nrow(taylor_album_songs), function(i) str_count(taylor_album_songs$lyrics_clean[i], paste0("\\b", taylor_album_songs$track_name_clean[i], "\\b")) %>% sum)
+taylor_album_songs$found_n_v2 <- sapply(1:nrow(taylor_album_songs), function(i) str_count(taylor_album_songs$lyrics_clean[i], paste0("\\b", taylor_album_songs$track_name_clean_v2[i], "\\b")) %>% sum)
+taylor_album_songs$found_n_v3 <- sapply(1:nrow(taylor_album_songs), function(i) str_count(taylor_album_songs$lyrics_clean_v2[i], paste0("\\b", taylor_album_songs$track_name_clean_v2[i], "\\b")) %>% sum)
+# taylor_album_songs <- taylor_album_songs %>%
+#   mutate(diff_found_n_v1v2 = found_n_v2 - found_n_v1,
+#          diff_found_n_v1v3 = found_n_v3 - found_n_v1,
+#          diff_found_n_v2v3 = found_n_v3 - found_n_v2)
+taylor_album_songs <- taylor_album_songs %>% mutate(found_n = pmax(found_n_v1, found_n_v2, found_n_v3))
+# count is not perfect yet
+
+# me: 26
+# so it goes: 12
+# ready for it: 5
+# that's when: 22
+
+################################################################################################
 
 boxplot(taylor_album_songs$found_n ~ taylor_album_songs$album_name)
 
