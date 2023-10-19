@@ -13,6 +13,19 @@ library(stringr)
 ################################################################################################
 
 taylor_album_songs$lyrics <- lapply(1:nrow(taylor_album_songs), function(i) taylor_album_songs$lyrics[[i]]$lyric)
+
+taylor_album_songs <- taylor_album_songs %>% mutate(track_name_clean = track_name %>% tolower %>%
+                                                      str_replace(" \\(taylor's version\\)", "") %>%
+                                                      str_replace(" \\[taylor's version\\]", "") %>%
+                                                      str_replace(" \\(10 minute version\\)", "") %>%
+                                                      str_replace(" \\[from the vault\\]", "") %>%
+                                                      str_replace(" \\(piano version\\)", "") %>%
+                                                      str_replace(" \\(remix\\)", "") %>%
+                                                      str_replace(" \\(pop version\\)", "") %>%
+                                                      str_replace(" \\(acoustic version\\)", "") %>%
+                                                      str_replace(" \\(strings remix\\)", "") %>%
+                                                      str_replace(" \\(piano remix\\)", ""))
+
 taylor_album_songs$found_n <- sapply(1:nrow(taylor_album_songs),
                                      function(i) str_count(taylor_album_songs$lyrics[i] %>% unlist %>% tolower, taylor_album_songs$track_name[i] %>% tolower) %>% sum)
 
