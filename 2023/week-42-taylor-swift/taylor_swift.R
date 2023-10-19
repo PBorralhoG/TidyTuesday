@@ -49,24 +49,66 @@ taylor_album_songs <- taylor_album_songs %>% mutate(found_n = pmax(found_n_v1, f
 
 ################################################################################################
 
-boxplot(taylor_album_songs$found_n ~ taylor_album_songs$album_name)
-
-sum(taylor_album_songs$found_n > 0) / nrow(taylor_album_songs) # 56%
-
-perc_by_album <- taylor_album_songs %>%
-  group_by(album_name) %>%
-  summarise(found_n_g0 = sum(found_n > 0),
-            n_songs = n(),
-            perc = found_n_g0 / n_songs,
-            album_release = unique(album_release)) %>%
-  arrange(desc(perc))
-
-plot(perc_by_album$album_release, perc_by_album$perc)
+# boxplot(taylor_album_songs$found_n ~ taylor_album_songs$album_name)
+# 
+# sum(taylor_album_songs$found_n > 0) / nrow(taylor_album_songs) # 56%
+# 
+# perc_by_album <- taylor_album_songs %>%
+#   group_by(album_name) %>%
+#   summarise(found_n_g0 = sum(found_n > 0),
+#             n_songs = n(),
+#             perc = found_n_g0 / n_songs,
+#             album_release = unique(album_release)) %>%
+#   arrange(desc(perc))
+# 
+# plot(perc_by_album$album_release, perc_by_album$perc)
+# 
+# ggplot(perc_by_album %>% filter(perc == 1), aes(x = n_songs, y = album_name)) +
+#   geom_tile(aes(fill = found_n_g0), color = "white", lwd = 1, linetype = 1)
 
 ################################################################################################
 
-ggplot(perc_by_album %>% arrange(album_release), aes(x = n_songs, y = album_name)) +
-  geom_tile(aes(fill = found_n_g0), color = "white", lwd = 1, linetype = 1)
+ggplot(taylor_album_songs, aes(x = track_number, y = album_name)) +
+  geom_tile(aes(fill = found_n > 0), color = "black") +
+  facet_grid(rows = vars(album_name), scales = "free") +
+  scale_fill_manual(values = c("TRUE" = "white", "FALSE" = "black"))
+
+taylor_album_songs <- taylor_album_songs %>% arrange(album_name, track_number) %>% mutate(x_pos = NA)
+for(j in 1:(taylor_album_songs$album_name %>% unique %>% length)){
+  album_j <- (taylor_album_songs$album_name %>% unique)[j]
+  songs_j <- taylor_album_songs %>% filter(album_name == album_j)
+  songs_j$x_pos[1] <- 1
+  for(i in 2:nrow(songs_j)){
+    if(songs_j$found_n[i] > 0 & songs_j$found_n[i-1] > 0){
+      songs_j$x_pos[i] <- songs_j$x_pos[i-1] + 22
+    } else{
+      songs_j$x_pos[i] <- songs_j$x_pos[i-1] + 11.5
+    }
+  }
+  taylor_album_songs$x_pos[taylor_album_songs$album_name == album_j] <- songs_j$x_pos
+}
+
+taylor_album_songs <- taylor_album_songs %>% mutate(width = ifelse(found_n > 0, 22, 11.5),
+                                                    xmax = x_pos + width,
+                                                    album_name = factor(album_name),
+                                                    ymax = album_name %>% as.numeric + 138,
+                                                    ymin = ifelse(found_n > 0,
+                                                                  album_name %>% as.numeric,
+                                                                  album_name %>% as.numeric + 53))
+
+# ggplot(taylor_album_songs, aes(x = x_pos, y = album_name, width = width)) +
+#   geom_tile(aes(fill = found_n > 0), color = "black") +
+#   facet_grid(rows = vars(album_name), scales = "free") +
+#   scale_fill_manual(values = c("TRUE" = "white", "FALSE" = "black"))
+
+ggplot(taylor_album_songs) +
+  geom_rect(aes(xmin = x_pos, xmax = xmax, ymin = ymin, ymax = ymax, fill = found_n > 0),
+            color = "black") +
+  facet_grid(rows = vars(album_name)) +
+  scale_fill_manual(values = c("TRUE" = "white", "FALSE" = "black"))
+
+
+
 
 
 
