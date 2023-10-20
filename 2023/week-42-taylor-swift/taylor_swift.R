@@ -73,11 +73,20 @@ ggplot(mapping = aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax, fill = 
   facet_wrap( ~ factor(album_name, levels = album_levels), ncol = 2, dir = "v") +
   geom_text(data = aux_labels, aes(x = xmin, y = ymax + 15, label = album_name), check_overlap = T, hjust = 0) +
   # ggrepel::geom_text_repel(data = taylor_all_songs2, aes(x = xmax, y = ymax, label = track_name_label)) +
+  coord_fixed(ratio = 1) +
+  labs(title = "Are we singing the song title?",
+       subtitle = "Yes, yes we are",
+       caption = paste0("#TidyTuesday week 42 2023 | Data: {taylor} R package | Plot: Pedro Borralho")) +
   theme_void() +
-  theme(strip.text = element_blank()) +
-  coord_fixed(ratio = 1)
+  theme(strip.text = element_blank(),
+        plot.title = element_text(size = 20, hjust = 0.5, face = "bold"),
+        plot.subtitle = element_text(size = 8.5, hjust = 0.5, margin = margin(t = 10, b = 40)),
+        plot.caption = element_text(size = 8, hjust = 0.5, margin = margin(t = 40)),
+        # legend.position = "none",
+        plot.margin = unit(c(1, 0.5, 1, 0.5), "cm"),
+        plot.background = element_rect(fill = alpha("#AA9EB6", 0.7), color = NA))
 
-
+# album_palettes
 
 
 
