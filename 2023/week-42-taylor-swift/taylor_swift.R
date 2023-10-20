@@ -55,10 +55,21 @@ taylor_album_songs2 <- rbind(songs_found_n_g0, songs_found_n_eq0) %>% arrange(al
                        album_name_num,
                        album_name_num + 53))
 
+aux_labels <- taylor_album_songs2 %>% filter(found_n > 0) %>% group_by(album_name) %>% filter(track_number == min(track_number))
+album_levels <- taylor_album_songs %>% arrange(album_release) %>% pull(album_name) %>% unique
+
 ggplot(mapping = aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax, fill = found_n > 0)) +
   geom_rect(data = taylor_album_songs2 %>% filter(found_n > 0), color = "black") +
   geom_rect(data = taylor_album_songs2 %>% filter(found_n == 0), color = "black") +
-  facet_grid(rows = vars(album_name), switch = "y") +
   scale_fill_manual(values = c("TRUE" = "white", "FALSE" = "black")) +
+  facet_grid(rows = vars(factor(album_name, levels = album_levels)), switch = "y") +
+  geom_text(data = aux_labels, aes(x = xmin, y = ymax + 15, label = album_name), check_overlap = T, hjust = 0) +
   theme_void() +
-  theme(strip.text.y.left = element_text(hjust = 1))
+  # theme(strip.text.y.left = element_text(hjust = 0)) +
+  theme(strip.text.y.left = element_blank()) +
+  coord_fixed(ratio = 1)
+
+
+
+
+
