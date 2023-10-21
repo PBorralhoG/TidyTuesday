@@ -17,8 +17,7 @@ showtext_auto(); showtext_opts(dpi = 320)
 # taylor_albums
 
 ################################################################################################
-
-# taylor_all_songs <- taylor_all_songs %>% select(album_name, ep, album_release, track_number, track_name, lyrics)
+# prepare data
 
 taylor_all_songs <- taylor_all_songs %>%
   filter(!is.na(album_name)) %>%
@@ -47,6 +46,7 @@ taylor_all_songs <- taylor_all_songs %>% mutate(found_n = pmax(found_n_v1, found
 # count is not perfect yet
 
 ################################################################################################
+# plot
 
 songs_found_n_g0 <- taylor_all_songs %>% filter(found_n > 0) %>%
   group_by(album_name) %>% arrange(track_number) %>% mutate(xmin = 1:n())
@@ -85,7 +85,7 @@ ggplot() +
   geom_text(data = aux_labels, aes(x = xmin, y = ymax + 30, label = album_name), check_overlap = T, hjust = 0, family = font, size = 9/.pt) +
   geom_text(data = ann_text, aes(x = x, y = y, label = label), check_overlap = T, hjust = 0, vjust = 1, family = font, size = 9/.pt) +
   geom_curve(data = ann_arrows, aes(x = x, y = y, xend = xend, yend = yend),
-             arrow = arrow(length = unit(0.08, "inch")), linewidth = 0.5, curvature = -0.3) +
+             arrow = arrow(length = unit(0.08, "inch")), linewidth = 0.3, curvature = -0.3) +
   coord_fixed(ratio = 1) +
   labs(title = "Are we singing the song title?",
        subtitle = "Yes, yes we are (at least Taylor Swift is: the exception are 2 out of 179 songs)",
@@ -93,17 +93,14 @@ ggplot() +
   theme_void() +
   theme(strip.text = element_blank(),
         legend.position = c(0.4, 1.05), legend.direction = 'horizontal',
-        legend.title = element_blank(), legend.box.margin = margin(t = 20, b = 20),
+        legend.title = element_blank(), legend.box.margin = margin(b = 20),
         legend.text = element_text(family = font, size = 10),
         plot.title = element_text(family = font, size = 25, hjust = 0.32, color = "white"),
-        plot.subtitle = element_text(family = font, size = 10, hjust = 0.32, margin = margin(t = 10, b = 50), color = "white"),
-        plot.caption = element_text(family = font, size = 10, hjust = 0.32, margin = margin(t = 20, b = 40)),
+        plot.subtitle = element_text(family = font, size = 10, hjust = 0.32, margin = margin(t = 10, b = 60), color = "white"),
+        plot.caption = element_text(family = font, size = 10, hjust = 0.3, margin = margin(t = 30, b = 20)),
         text = element_text(family = font),
-        plot.margin = unit(c(1, -1.2, 1, 1.5), "cm"),
+        plot.margin = unit(c(1, -1.2, 0, 1.5), "cm"),
         plot.background = element_rect(fill = "#AA9EB6", color = NA))
 
 # save plot
 ggsave(paste0("taylor_swift_", format(Sys.time(), "%Y%m%d"), ".png"), dpi = 320, width = 8, height = 8)
-
-
-
