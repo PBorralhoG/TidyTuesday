@@ -54,7 +54,8 @@ ggplot(haunted_schools, aes(x = longitude, y = latitude)) +
         plot.background = element_rect(fill = grey(0.85), color = NA))
 
 # save plot
-ggsave(paste0("haunted_schools_", format(Sys.time(), "%Y%m%d"), ".png"), dpi = 320, width = 6, height = 6)
+ggsave(paste0("2023/week-41-haunted-places/haunted_schools_", format(Sys.time(), "%Y%m%d"), ".png"),
+       dpi = 320, width = 6, height = 6)
   
 
 

@@ -103,4 +103,5 @@ ggplot() +
         plot.background = element_rect(fill = "#AA9EB6", color = NA))
 
 # save plot
-ggsave(paste0("taylor_swift_", format(Sys.time(), "%Y%m%d"), ".png"), dpi = 320, width = 8, height = 8)
+ggsave(paste0("2023/week-42-taylor-swift/taylor_swift_", format(Sys.time(), "%Y%m%d"), ".png"),
+       dpi = 320, width = 8, height = 8)
