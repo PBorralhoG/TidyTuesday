@@ -3,6 +3,11 @@ library(taylor)
 library(dplyr)
 library(stringr)
 library(ggplot2)
+library(showtext)
+
+# add font
+font_add_google("Poppins"); font <- "Poppins"
+showtext_auto(); showtext_opts(dpi = 320)
 
 ################################################################################################
 # load data
@@ -68,37 +73,37 @@ ann_arrows <- rbind(data.frame(x = 222, y = 145, xend = 356, yend = 160, album_n
                     data.frame(x = 178, y = 145, xend = 510, yend = 160, album_name = "Red"))
 
 ggplot() +
-  geom_rect(data = taylor_all_songs2 %>% filter(found_n > 0), color = "black",
+  geom_rect(data = taylor_all_songs2 %>% filter(found_n > 0), color = grey(0.3),
             mapping = aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax, fill = found_n > 0)) +
   geom_rect(data = taylor_all_songs2 %>% filter(found_n == 0), color = "black",
             mapping = aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax, fill = found_n > 0)) +
   scale_fill_manual(breaks = c("TRUE", "FALSE"), values = c("TRUE" = "white", "FALSE" = "black"),
                     labels = c("TRUE" = "song title is in the lyrics", "FALSE" = "it's not")) +
-  scale_x_continuous(limits = c(0, 790)) +
+  scale_x_continuous(limits = c(0, 855)) +
   scale_y_continuous(limits = c(-10, 200)) +
   facet_wrap( ~ factor(album_name, levels = album_levels), ncol = 2, dir = "v") +
-  geom_text(data = aux_labels, aes(x = xmin, y = ymax + 30, label = album_name), check_overlap = T, hjust = 0) +
-  geom_text(data = ann_text, aes(x = x, y = y, label = label), check_overlap = T, hjust = 0, vjust = 1, size = 8/.pt) +
+  geom_text(data = aux_labels, aes(x = xmin, y = ymax + 30, label = album_name), check_overlap = T, hjust = 0, family = font, size = 9/.pt) +
+  geom_text(data = ann_text, aes(x = x, y = y, label = label), check_overlap = T, hjust = 0, vjust = 1, family = font, size = 9/.pt) +
   geom_curve(data = ann_arrows, aes(x = x, y = y, xend = xend, yend = yend),
              arrow = arrow(length = unit(0.08, "inch")), linewidth = 0.5, curvature = -0.3) +
   coord_fixed(ratio = 1) +
   labs(title = "Are we singing the song title?",
-       subtitle = "Yes, yes we are (at least Taylor Swift is)",
+       subtitle = "Yes, yes we are (at least Taylor Swift is: the exception are 2 out of 179 songs)",
        caption = paste0("#TidyTuesday week 42 2023 | Data: {taylor} R package | Plot: Pedro Borralho")) +
   theme_void() +
   theme(strip.text = element_blank(),
-        legend.position = "top", legend.direction = 'horizontal', legend.title = element_blank(),
-        legend.box.margin = margin(0,0,10,0),
-        plot.title = element_text(size = 20, hjust = 0.5, face = "bold"),
-        plot.subtitle = element_text(size = 8.5, hjust = 0.5, margin = margin(t = 10, b = 40)),
-        plot.caption = element_text(size = 8, hjust = 0.5, margin = margin(t = 40)),
-        plot.margin = unit(c(1, -1, 1, 1.5), "cm"),
+        legend.position = c(0.4, 1.05), legend.direction = 'horizontal',
+        legend.title = element_blank(), legend.box.margin = margin(t = 20, b = 20),
+        legend.text = element_text(family = font, size = 10),
+        plot.title = element_text(family = font, size = 25, hjust = 0.32, color = "white"),
+        plot.subtitle = element_text(family = font, size = 10, hjust = 0.32, margin = margin(t = 10, b = 50), color = "white"),
+        plot.caption = element_text(family = font, size = 10, hjust = 0.32, margin = margin(t = 20, b = 40)),
+        text = element_text(family = font),
+        plot.margin = unit(c(1, -1.2, 1, 1.5), "cm"),
         plot.background = element_rect(fill = "#AA9EB6", color = NA))
 
-# album_palettes
-
 # save plot
-ggsave(paste0("taylor_swift_", format(Sys.time(), "%Y%m%d"), ".png"), dpi = 320, width = 6, height = 6)
+ggsave(paste0("taylor_swift_", format(Sys.time(), "%Y%m%d"), ".png"), dpi = 320, width = 8, height = 8)
 
 
 
