@@ -60,31 +60,39 @@ taylor_all_songs2 <- rbind(songs_found_n_g0, songs_found_n_eq0) %>% arrange(albu
 aux_labels <- taylor_all_songs2 %>% filter(found_n > 0) %>% group_by(album_name) %>% filter(track_number == min(track_number))
 album_levels <- taylor_all_songs %>% arrange(album_release) %>% pull(album_name) %>% unique
 
-ann_text <- data.frame(x = 350, xmin = 350, xmax = 350,
-                       y = 240, ymin = 240, ymax = 240,
-                       found_n = 20,
-                       album_name = "Taylor Swift", label = "Mary's Song (Oh My My My)")
+ann_text <- rbind(data.frame(x = 366, y = 150, album_name = "Taylor Swift",
+                             label = "Mary's Song (Oh My My My)\n(there is no Mary in the lyrics)"),
+            data.frame(x = 520, y = 150, album_name = "Red",
+                       label = "We Are Never Ever\nGetting Back Together\n(in the lyrics it's ever ever \nor even ever ever ever)"))
+ann_arrows <- rbind(data.frame(x = 222, y = 145, xend = 356, yend = 160, album_name = "Taylor Swift"),
+                    data.frame(x = 178, y = 145, xend = 510, yend = 160, album_name = "Red"))
 
-ggplot(mapping = aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax, fill = found_n > 0)) +
-  geom_rect(data = taylor_all_songs2 %>% filter(found_n > 0), color = "black") +
-  geom_rect(data = taylor_all_songs2 %>% filter(found_n == 0), color = "black") +
-  scale_fill_manual(values = c("TRUE" = "white", "FALSE" = "black")) +
-  # scale_x_continuous(limits = c(0, 600)) + scale_y_continuous(limits = c(0, 250)) +
-  scale_y_continuous(limits = c(0, 200)) +
+ggplot() +
+  geom_rect(data = taylor_all_songs2 %>% filter(found_n > 0), color = "black",
+            mapping = aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax, fill = found_n > 0)) +
+  geom_rect(data = taylor_all_songs2 %>% filter(found_n == 0), color = "black",
+            mapping = aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax, fill = found_n > 0)) +
+  scale_fill_manual(breaks = c("TRUE", "FALSE"), values = c("TRUE" = "white", "FALSE" = "black"),
+                    labels = c("TRUE" = "song title is in the lyrics", "FALSE" = "it's not")) +
+  scale_x_continuous(limits = c(0, 790)) +
+  scale_y_continuous(limits = c(-10, 200)) +
   facet_wrap( ~ factor(album_name, levels = album_levels), ncol = 2, dir = "v") +
   geom_text(data = aux_labels, aes(x = xmin, y = ymax + 30, label = album_name), check_overlap = T, hjust = 0) +
-  # geom_text(data = ann_text, aes(x = x, y = y, label = label)) +
+  geom_text(data = ann_text, aes(x = x, y = y, label = label), check_overlap = T, hjust = 0, vjust = 1, size = 8/.pt) +
+  geom_curve(data = ann_arrows, aes(x = x, y = y, xend = xend, yend = yend),
+             arrow = arrow(length = unit(0.08, "inch")), linewidth = 0.5, curvature = -0.3) +
   coord_fixed(ratio = 1) +
   labs(title = "Are we singing the song title?",
        subtitle = "Yes, yes we are (at least Taylor Swift is)",
        caption = paste0("#TidyTuesday week 42 2023 | Data: {taylor} R package | Plot: Pedro Borralho")) +
   theme_void() +
   theme(strip.text = element_blank(),
+        legend.position = "top", legend.direction = 'horizontal', legend.title = element_blank(),
+        legend.box.margin = margin(0,0,10,0),
         plot.title = element_text(size = 20, hjust = 0.5, face = "bold"),
         plot.subtitle = element_text(size = 8.5, hjust = 0.5, margin = margin(t = 10, b = 40)),
         plot.caption = element_text(size = 8, hjust = 0.5, margin = margin(t = 40)),
-        # legend.position = "none",
-        plot.margin = unit(c(1, 0.5, 1, 0.5), "cm"),
+        plot.margin = unit(c(1, -1, 1, 1.5), "cm"),
         plot.background = element_rect(fill = "#AA9EB6", color = NA))
 
 # album_palettes
