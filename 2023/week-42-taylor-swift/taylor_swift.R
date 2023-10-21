@@ -60,13 +60,20 @@ taylor_all_songs2 <- rbind(songs_found_n_g0, songs_found_n_eq0) %>% arrange(albu
 aux_labels <- taylor_all_songs2 %>% filter(found_n > 0) %>% group_by(album_name) %>% filter(track_number == min(track_number))
 album_levels <- taylor_all_songs %>% arrange(album_release) %>% pull(album_name) %>% unique
 
+ann_text <- data.frame(x = 350, xmin = 350, xmax = 350,
+                       y = 240, ymin = 240, ymax = 240,
+                       found_n = 20,
+                       album_name = "Taylor Swift", label = "Mary's Song (Oh My My My)")
+
 ggplot(mapping = aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax, fill = found_n > 0)) +
   geom_rect(data = taylor_all_songs2 %>% filter(found_n > 0), color = "black") +
   geom_rect(data = taylor_all_songs2 %>% filter(found_n == 0), color = "black") +
   scale_fill_manual(values = c("TRUE" = "white", "FALSE" = "black")) +
+  # scale_x_continuous(limits = c(0, 600)) + scale_y_continuous(limits = c(0, 250)) +
   scale_y_continuous(limits = c(0, 200)) +
   facet_wrap( ~ factor(album_name, levels = album_levels), ncol = 2, dir = "v") +
   geom_text(data = aux_labels, aes(x = xmin, y = ymax + 30, label = album_name), check_overlap = T, hjust = 0) +
+  # geom_text(data = ann_text, aes(x = x, y = y, label = label)) +
   coord_fixed(ratio = 1) +
   labs(title = "Are we singing the song title?",
        subtitle = "Yes, yes we are (at least Taylor Swift is)",
