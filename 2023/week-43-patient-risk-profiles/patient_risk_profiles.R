@@ -40,7 +40,9 @@ risk_by_age_group <- patient_risk_profiles %>%
 risk_by_age_group <- risk_by_age_group %>%
   group_by(disease) %>%
   mutate(pred_risk_med_max = max(pred_risk_med),
-         pred_risk_med_norm = pred_risk_med / pred_risk_med_max)
+         pred_risk_med_norm = pred_risk_med / pred_risk_med_max,
+         pred_risk_med_med = median(pred_risk_med),
+         pred_risk_med_norm2 = pred_risk_med / pred_risk_med_med)
 
 ################################################################################################
 
@@ -74,7 +76,6 @@ ggplot(risk_by_age_group, aes(x = age_group_mean, y = pred_risk_med_norm, colour
   gghighlight::gghighlight(use_direct_label = F, unhighlighted_params = list(colour = grey(0.85))) +
   facet_wrap(~disease) +
   theme(legend.position = "none")
-
 
 
 
