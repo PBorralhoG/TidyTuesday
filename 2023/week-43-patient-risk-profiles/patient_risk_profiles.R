@@ -10,7 +10,7 @@ library(ggplot2)
 # load data
 
 tuesdata <- tidytuesdayR::tt_load(2023, week = 43)
-patient_risk_profiles <- tuesdata$patient_risk_profiles
+patient_risk_profiles <- patient_risk_profiles0 <- tuesdata$patient_risk_profiles
 
 ################################################################################################
 # prepare data
@@ -50,11 +50,11 @@ ggplot(patient_risk_profiles %>% filter(disease == "Dementia"), aes(x = age_grou
   geom_point()
 
 ggplot() +
-  geom_rect(data = risk_by_age_group, aes(xmin = age_group_min, xmax = age_group_max+1, ymin = pred_risk_min, ymax = pred_risk_max), color = "black") +
+  # geom_rect(data = risk_by_age_group, aes(xmin = age_group_min, xmax = age_group_max+1, ymin = pred_risk_min, ymax = pred_risk_max), color = "black") +
   geom_rect(data = risk_by_age_group, aes(xmin = age_group_min, xmax = age_group_max+1, ymin = pred_risk_p5, ymax = pred_risk_p95), fill = alpha("purple", 0.5), color = "black") +
-  geom_rect(data = risk_by_age_group, aes(xmin = age_group_min, xmax = age_group_max+1, ymin = pred_risk_min2, ymax = pred_risk_max2), fill = alpha("red", 0.5), color = "black") +
+  # geom_rect(data = risk_by_age_group, aes(xmin = age_group_min, xmax = age_group_max+1, ymin = pred_risk_min2, ymax = pred_risk_max2), fill = alpha("red", 0.5), color = "black") +
   geom_point(data = patient_risk_profiles, aes(x = age_group_mean+0.5, y = pred_risk)) +
-  geom_point(data = risk_by_age_group, aes(x = age_group_mean+0.5, y = pred_risk_med), shape = 4, size = 3, stroke = 2) +
+  # geom_point(data = risk_by_age_group, aes(x = age_group_mean+0.5, y = pred_risk_med), shape = 4, size = 3, stroke = 2) +
   facet_wrap(~disease, scales = "free")
 
 #############################
@@ -71,11 +71,20 @@ ggplot(risk_by_age_group, aes(x = age_group_mean, y = pred_risk_med, colour = di
   theme(legend.position = "none")
 
 ggplot(risk_by_age_group, aes(x = age_group_mean, y = pred_risk_med_norm, colour = disease)) +
-  # geom_line() +
+  # geom_line(lwd = 1) +
   geom_smooth(se = FALSE, linewidth = 1) +
   gghighlight::gghighlight(use_direct_label = F, unhighlighted_params = list(colour = grey(0.85))) +
   facet_wrap(~disease) +
   theme(legend.position = "none")
+
+################################################################################################
+
+table(FEMALE = patient_risk_profiles0$`Sex = FEMALE`, MALE = patient_risk_profiles0$`Sex = MALE`)
+
+patient_risk_profiles %>% select(personId, age_group) %>% unique %>% pull(age_group) %>% table
+xx <- patient_risk_profiles %>% select(personId, age_group_mean) %>% unique %>% pull(age_group_mean) %>% table
+plot(xx)
+
 
 
 
