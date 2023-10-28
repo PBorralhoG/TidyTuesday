@@ -85,6 +85,26 @@ patient_risk_profiles %>% select(personId, age_group) %>% unique %>% pull(age_gr
 xx <- patient_risk_profiles %>% select(personId, age_group_mean) %>% unique %>% pull(age_group_mean) %>% table
 plot(xx)
 
+################################################################################################
 
+risk_by_age_group %>% filter(disease %in% c("Dementia", "Migraine")) %>%
+  ggplot() +
+  geom_ribbon(aes(x = age_group_mean, ymin = pred_risk_min, ymax = pred_risk_max), fill = grey(0.8)) +
+  geom_ribbon(aes(x = age_group_mean, ymin = pred_risk_p5, ymax = pred_risk_p95), fill = grey(0.6)) +
+  geom_line(aes(x = age_group_mean, y = pred_risk_med), color = grey(0.2)) +
+  facet_wrap(~disease, scales = "free", nrow = 2)
+
+risk_by_age_group2 <- risk_by_age_group %>% filter(disease %in% c("Dementia", "Migraine"))
+risk_by_age_group2 <- rbind(
+  risk_by_age_group2 %>% select(disease, age_group = age_group_min, pred_risk_min, pred_risk_p5, pred_risk_med, pred_risk_p95, pred_risk_max),
+  risk_by_age_group2 %>% select(disease, age_group = age_group_max, pred_risk_min, pred_risk_p5, pred_risk_med, pred_risk_p95, pred_risk_max))
+
+risk_by_age_group2 %>%
+  ggplot() +
+  geom_ribbon(aes(x = age_group, ymin = pred_risk_min, ymax = pred_risk_max), fill = grey(0.8)) +
+  geom_ribbon(aes(x = age_group, ymin = pred_risk_p5, ymax = pred_risk_p95), fill = grey(0.6)) +
+  geom_line(aes(x = age_group, y = pred_risk_med), color = grey(0.2)) +
+  facet_wrap(~disease, scales = "free", nrow = 2)
+  
 
 
