@@ -46,40 +46,37 @@ risk_by_age_group2 <- rbind(
   risk_by_age_group2 %>% select(disease, age_group = age_group_min, pred_risk_min, pred_risk_p5, pred_risk_p25, pred_risk_med, pred_risk_p75, pred_risk_p95, pred_risk_max),
   risk_by_age_group2 %>% mutate(age_group_max = age_group_max+0.99) %>% select(disease, age_group = age_group_max, pred_risk_min, pred_risk_p5, pred_risk_p25, pred_risk_med, pred_risk_p75, pred_risk_p95, pred_risk_max))
 
-axis_lines <- rbind(data.frame(x = 0, xend = 94, y = 0.07*1.1, yend = 0.07*1.1, disease = "Migraine"),
-                    data.frame(x = 97, xend = 97, y = 0, yend = 0.4, disease = "Dementia"),
+axis_lines <- rbind(data.frame(x = 0, xend = 94.5, y = 0.07*1.1, yend = 0.07*1.1, disease = "Migraine"),
+                    # data.frame(x = 97, xend = 97, y = 0, yend = 0.4, disease = "Dementia"),
+                    data.frame(x = -3, xend = -3, y = 0, yend = 0.4, disease = "Dementia"),
                     data.frame(x = -3, xend = -3, y = 0, yend = 0.07, disease = "Migraine"))
 
-axis_text <- rbind(data.frame(x = 97, y = 0, label = "0%", disease = "Dementia", angle = 0),
-                   data.frame(x = 97, y = 0.4, label = "40%", disease = "Dementia", angle = 0),
+axis_text <- rbind(# data.frame(x = 97, y = 0, label = "0%", disease = "Dementia", angle = 0),
+                   # data.frame(x = 97, y = 0.4/2, label = "Predicted Risk", disease = "Dementia", angle = -90),
+                   # data.frame(x = 97, y = 0.4, label = "40%", disease = "Dementia", angle = 0),
+                   data.frame(x = -3, y = 0, label = "0%", disease = "Dementia", angle = 0),
+                   data.frame(x = -3, y = 0.4/2, label = "Predicted Risk", disease = "Dementia", angle = 90),
+                   data.frame(x = -3, y = 0.4, label = "40%", disease = "Dementia", angle = 0),
                    data.frame(x = -3, y = 0, label = "0%", disease = "Migraine", angle = 0),
+                   data.frame(x = -3, y = 0.07/2, label = "Predicted Risk", disease = "Migraine", angle = 90),
                    data.frame(x = -3, y = 0.07, label = "7%", disease = "Migraine", angle = 0),
                    data.frame(x = 0, y = 0.07*1.1, label = "0", disease = "Migraine", angle = 0),
                    data.frame(x = 94/2, y = 0.07*1.1, label = "Age", disease = "Migraine", angle = 0),
-                   data.frame(x = 94, y = 0.07*1.1, label = "94", disease = "Migraine", angle = 0),
-                   data.frame(x = 94*0.4, y = 0.4*0.6, label = "Dementia", disease = "Dementia", angle = 0),
-                   data.frame(x = 94*0.6, y = 0.07*0.6, label = "Migraine", disease = "Migraine", angle = 0),
-                   data.frame(x = 97, y = 0.4/2, label = "Predicted Risk", disease = "Dementia", angle = -90),
-                   data.frame(x = -3, y = 0.07/2, label = "Predicted Risk", disease = "Migraine", angle = 90))
+                   data.frame(x = 94.5, y = 0.07*1.1, label = "94", disease = "Migraine", angle = 0),
+                   data.frame(x = 94*0.5, y = 0.4*0.6, label = "Dementia", disease = "Dementia", angle = 0),
+                   data.frame(x = 94*0.5, y = 0.07*0.6, label = "Migraine", disease = "Migraine", angle = 0))
 
-leg <- rbind(data.frame(x = 0, y_min = 0, y_p5 = 5, y_p25 = 25, y_med = 50, y_p75 = 75, y_p95 = 95, y_max = 100),
-             data.frame(x = 1, y_min = 0, y_p5 = 5, y_p25 = 25, y_med = 50, y_p75 = 75, y_p95 = 95, y_max = 100))
+aux <- risk_by_age_group2 %>% filter(age_group == max(age_group) & disease == "Dementia")
 
-leg_lines <- rbind(data.frame(x = -0.1, xend = -0.1, y = 25, yend = 75),
-                   data.frame(x = 1.1, xend = 1.1, y = 5, yend = 95))
+leg_lines <- rbind(data.frame(x = 97, xend = 97, y = aux$pred_risk_p25, yend = aux$pred_risk_p75, disease = "Dementia"),
+                   data.frame(x = 96.5, xend = 97, y = aux$pred_risk_p25, yend = aux$pred_risk_p25, disease = "Dementia"),
+                   data.frame(x = 96.5, xend = 97, y = aux$pred_risk_p75, yend = aux$pred_risk_p75, disease = "Dementia"),
+                   data.frame(x = 99, xend = 99, y = aux$pred_risk_p5, yend = aux$pred_risk_p95, disease = "Dementia"),
+                   data.frame(x = 98.5, xend = 99, y = aux$pred_risk_p5, yend = aux$pred_risk_p5, disease = "Dementia"),
+                   data.frame(x = 98.5, xend = 99, y = aux$pred_risk_p95, yend = aux$pred_risk_p95, disease = "Dementia"))
 
-leg_text <- rbind(data.frame(x = -0.1, y = 50, label = "50% here", angle = 90),
-                  data.frame(x = 1.1, y = 50, label = "90% here", angle = 90))
-
-leg_plot <- ggplot(leg) +
-  geom_ribbon(aes(x = x, ymin = y_min, ymax = y_max), fill = grey(0.9)) +
-  geom_ribbon(aes(x = x, ymin = y_p5, ymax = y_p95), fill = grey(0.7)) +
-  geom_ribbon(aes(x = x, ymin = y_p25, ymax = y_p75), fill = grey(0.4)) +
-  geom_line(aes(x = x, y = y_med), color = grey(0.2)) +
-  scale_x_continuous(limits = c(-0.1, 1.1)) +
-  geom_segment(data = leg_lines, aes(x = x, y = y, xend = xend, yend = yend), linewidth = 0.5) +
-  geom_richtext(data = leg_text, aes(x = x, y = y, label = label, angle = angle), label.colour = NA) +
-  theme_void()
+leg_text <- rbind(data.frame(x = 97, y = 0.3036239, label = "50%", angle = 90, disease = "Dementia"),
+                  data.frame(x = 99, y = 0.3036239, label = "90%", angle = 90, disease = "Dementia"))
 
 ggplot(risk_by_age_group2) +
   geom_ribbon(aes(x = age_group, ymin = pred_risk_min, ymax = pred_risk_max), fill = grey(0.9)) +
@@ -87,9 +84,11 @@ ggplot(risk_by_age_group2) +
   geom_ribbon(aes(x = age_group, ymin = pred_risk_p25, ymax = pred_risk_p75), fill = grey(0.4)) +
   geom_line(aes(x = age_group, y = pred_risk_med), color = grey(0.2)) +
   facet_wrap(~disease, scales = "free", nrow = 2) +
-  scale_x_continuous(limits = c(-3, 97)) +
+  scale_x_continuous(limits = c(-3, 100)) +
   geom_segment(data = axis_lines, aes(x = x, y = y, xend = xend, yend = yend), linewidth = 0.5) +
   geom_richtext(data = axis_text, aes(x = x, y = y, label = label, angle = angle), label.colour = NA) +
+  geom_segment(data = leg_lines, aes(x = x, y = y, xend = xend, yend = yend), linewidth = 0.5) +
+  geom_richtext(data = leg_text, aes(x = x, y = y, label = label, angle = angle), label.colour = NA) +
   labs(title = "Patient Risk Profiles",
        subtitle = "Predicted risk of Dementia and Migraine by age of 100 simulated patients",
        caption = paste0("#TidyTuesday week 43 2023 | Data: R/Pharma | Plot: Pedro Borralho")) +
@@ -98,7 +97,6 @@ ggplot(risk_by_age_group2) +
         plot.title = element_text(size = 20, hjust = 0.5, face = "bold"),
         plot.subtitle = element_text(size = 8.5, hjust = 0.5, margin = margin(t = 10, b = 40)),
         plot.caption = element_text(size = 8, hjust = 0.5, margin = margin(t = 40)),
-        plot.margin = unit(c(1, 0.5, 1, 0.5), "cm")) +
-  annotation_custom(ggplotGrob(leg_plot), xmin = 0, xmax = 6, ymin = 0.1, ymax = 0.15)
+        plot.margin = unit(c(1, 0.5, 1, 0.5), "cm"))
 
 
