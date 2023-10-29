@@ -71,8 +71,8 @@ leg_lines <- rbind(data.frame(x = 99, xend = 99, y = aux$pred_risk_p25, yend = a
                    data.frame(x = 95.5, xend = 96, y = aux$pred_risk_p5, yend = aux$pred_risk_p5, disease = "Dementia"),
                    data.frame(x = 95.5, xend = 96, y = aux$pred_risk_p95, yend = aux$pred_risk_p95, disease = "Dementia"))
 
-leg_text <- rbind(data.frame(x = 97, y = aux$pred_risk_med, label = "90% of the data", angle = 90, disease = "Dementia"),
-                  data.frame(x = 100, y = aux$pred_risk_med, label = "50% of the data", angle = 90, disease = "Dementia"))
+leg_text <- rbind(data.frame(x = 97, y = aux$pred_risk_med, label = "90% of the patients", angle = -90, disease = "Dementia"),
+                  data.frame(x = 100, y = aux$pred_risk_med, label = "50% of the patients", angle = -90, disease = "Dementia"))
 
 ggplot(risk_by_age_group2) +
   geom_ribbon(aes(x = age_group, ymin = pred_risk_min, ymax = pred_risk_max), fill = grey(0.9)) +
@@ -85,7 +85,7 @@ ggplot(risk_by_age_group2) +
   geom_richtext(data = axis_text, aes(x = x, y = y, label = label, angle = angle), label.colour = NA) +
   geom_segment(data = leg_lines, aes(x = x, y = y, xend = xend, yend = yend), linewidth = 0.5) +
   # geom_richtext(data = leg_text, aes(x = x, y = y, label = label, angle = angle), label.colour = NA) +
-  geom_text(data = leg_text, aes(x = x, y = y, label = label, angle = angle), hjust = 0.6) +
+  geom_text(data = leg_text, aes(x = x, y = y, label = label, angle = angle), hjust = 0.4) + # 0.6
   labs(title = "Patient Risk Profiles",
        subtitle = "Predicted risk of Dementia and Migraine by age of 100 simulated patients",
        caption = paste0("#TidyTuesday week 43 2023 | Data: R/Pharma | Plot: Pedro Borralho")) +
