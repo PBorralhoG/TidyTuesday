@@ -4,6 +4,7 @@ library(dplyr)
 library(stringr)
 library(tidyr)
 library(ggplot2)
+library(ggtext)
 # library(showtext)
 
 ################################################################################################
@@ -45,21 +46,31 @@ risk_by_age_group2 <- rbind(
   risk_by_age_group2 %>% select(disease, age_group = age_group_min, pred_risk_min, pred_risk_p5, pred_risk_p25, pred_risk_med, pred_risk_p75, pred_risk_p95, pred_risk_max),
   risk_by_age_group2 %>% select(disease, age_group = age_group_max, pred_risk_min, pred_risk_p5, pred_risk_p25, pred_risk_med, pred_risk_p75, pred_risk_p95, pred_risk_max))
 
-axis_lines <- rbind(data.frame(x = 1, xend = 93, y = -0.4*0.05, yend = -0.4*0.05, disease = "Dementia"),
-                    data.frame(x = 1, xend = 93, y = 0.07*1.05, yend = 0.07*1.05, disease = "Migraine"),
-                    data.frame(x = 97, xend = 97, y = 0.4*0.05, yend = 0.4*0.95, disease = "Dementia"),
-                    data.frame(x = -3, xend = -3, y = 0.07*0.05, yend = 0.07*0.95, disease = "Migraine"))
+# axis_lines <- rbind(data.frame(x = 1, xend = 93, y = -0.4*0.05, yend = -0.4*0.05, disease = "Dementia"),
+#                     data.frame(x = 1, xend = 93, y = 0.07*1.05, yend = 0.07*1.05, disease = "Migraine"),
+#                     data.frame(x = 97, xend = 97, y = 0.4*0.05, yend = 0.4*0.95, disease = "Dementia"),
+#                     data.frame(x = -3, xend = -3, y = 0.07*0.05, yend = 0.07*0.95, disease = "Migraine"))
 
-axis_text <- rbind(data.frame(x = 97, y = 0, label = "0% risk", disease = "Dementia"),
-                   data.frame(x = 97, y = 0.4, label = "40% risk", disease = "Dementia"),
-                   data.frame(x = -3, y = 0, label = "0% risk", disease = "Migraine"),
-                   data.frame(x = -3, y = 0.07, label = "7% risk", disease = "Migraine"),
+axis_lines <- rbind(data.frame(x = 0, xend = 94, y = -0.4*0.05, yend = -0.4*0.05, disease = "Dementia"),
+                    data.frame(x = 0, xend = 94, y = 0.07*1.05, yend = 0.07*1.05, disease = "Migraine"),
+                    data.frame(x = 97, xend = 97, y = 0.4*0, yend = 0.4*1, disease = "Dementia"),
+                    data.frame(x = -3, xend = -3, y = 0.07*0, yend = 0.07*1, disease = "Migraine"))
+
+axis_text <- rbind(data.frame(x = 97, y = 0, label = "0%", disease = "Dementia"),
+                   data.frame(x = 97, y = 0.4, label = "40%", disease = "Dementia"),
+                   data.frame(x = -3, y = 0, label = "0%", disease = "Migraine"),
+                   data.frame(x = -3, y = 0.07, label = "7%", disease = "Migraine"),
                    data.frame(x = 0, y = -0.4*0.05, label = "0", disease = "Dementia"),
                    data.frame(x = 94, y = -0.4*0.05, label = "94", disease = "Dementia"),
                    data.frame(x = 0, y = 0.07*1.05, label = "0", disease = "Migraine"),
                    data.frame(x = 94, y = 0.07*1.05, label = "94", disease = "Migraine"),
                    data.frame(x = 94*0.4, y = 0.4*0.6, label = "Dementia", disease = "Dementia"),
-                   data.frame(x = 94*0.6, y = 0.07*0.6, label = "Migraine", disease = "Migraine"))
+                   data.frame(x = 94*0.6, y = 0.07*0.6, label = "Migraine", disease = "Migraine"),
+                   data.frame(x = 94/2, y = -0.4*0.05, label = "Age", disease = "Dementia"),
+                   data.frame(x = 94/2, y = 0.07*1.05, label = "Age", disease = "Migraine"))
+
+axis_text_rot <- rbind(data.frame(x = 97, y = 0.4/2, label = "Predicted Risk", angle = -90, disease = "Dementia"),
+                       data.frame(x = -3, y = 0.07/2, label = "Predicted Risk", angle = 90, disease = "Migraine"))
 
 ggplot(risk_by_age_group2) +
   geom_ribbon(aes(x = age_group, ymin = pred_risk_min, ymax = pred_risk_max), fill = grey(0.8)) +
@@ -68,8 +79,9 @@ ggplot(risk_by_age_group2) +
   geom_line(aes(x = age_group, y = pred_risk_med), color = grey(0.2)) +
   facet_wrap(~disease, scales = "free", nrow = 2) +
   theme_void() +
-  geom_segment(data = axis_lines, aes(x = x, xend = xend, y = y, yend = yend), linewidth = 0.5) +
-  geom_text(data = axis_text, aes(x = x, y = y, label = label)) +
+  geom_segment(data = axis_lines, aes(x = x, y = y, xend = xend, yend = yend), linewidth = 0.5) +
+  geom_richtext(data = axis_text, aes(x = x, y = y, label = label), label.colour = NA) +
+  geom_richtext(data = axis_text_rot, aes(x = x, y = y, label = label, angle = angle), label.colour = NA) +
   theme(strip.text = element_blank())
 
 
