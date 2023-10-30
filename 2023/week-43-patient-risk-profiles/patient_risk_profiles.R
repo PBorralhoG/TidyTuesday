@@ -86,12 +86,12 @@ ggplot(risk_by_age_group2) +
   scale_x_continuous(limits = c(-3, 100)) +
   geom_segment(data = axis_lines, aes(x = x, y = y, xend = xend, yend = yend), linewidth = 0.5, color = axis_color) +
   geom_richtext(data = axis_text, aes(x = x, y = y, label = label, angle = angle), fill = "white", label.colour = NA, size = 9/.pt, color = axis_color) +
-  # geom_text(data = facet_text, aes(x = x, y = y, label = label, angle = angle), hjust = 0.5, size = 12/.pt) +
   geom_richtext(data = facet_text, aes(x = x, y = y, label = label, angle = angle), hjust = 0.5, size = 12/.pt, fill = NA, label.colour = NA, color = axis_color) +
   geom_segment(data = leg_lines, aes(x = x, y = y, xend = xend, yend = yend), linewidth = 0.5, color = axis_color) +
   geom_text(data = leg_text, aes(x = x, y = y, label = label, angle = angle), hjust = 0.4, size = 9/.pt, color = axis_color) +
   labs(title = "Patient Risk Profiles",
-       subtitle = "Predicted risk of Dementia and Migraine by age of 100 simulated patients",
+       subtitle = "Predicted risk by age of Dementia and Migraine (100 simulated patients).\n
+       Whilst Dementia is predicted to appear later in life (after 75 years old),\nMigraine may occur in all ages (from 15 to 84 years old)",
        caption = paste0("#TidyTuesday week 43 2023 | Data: R/Pharma | Plot: Pedro Borralho")) +
   theme_void() +
   theme(strip.text = element_blank(),
